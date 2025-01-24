@@ -1,0 +1,143 @@
+unmanaged implementation in class zbp_paw_iv_event unique;
+strict ( 2 );
+// Draft Table
+with draft;
+
+define behavior for ZPAW_IV_EVENT alias Event
+
+// Define Draft Table
+draft table zems_d_event
+
+late numbering
+lock master
+total etag Aezet
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+
+// draft table action
+  draft action Edit;
+  draft action Activate;
+  draft action Discard;
+  draft action Resume;
+
+  validation validate_event_fields on save { create; update; }
+  determination setStartDate on save { field ename; create;}
+
+  draft determine action Prepare{
+    determination setStartDate;
+    validation validate_event_fields;
+  }
+
+  field ( readonly ) Evtid, Stdat;
+  association _expense { create; with draft;}
+  association _task { create; with draft;}
+  association _teams { create; with draft;}
+
+  mapping for ZPAW_EVENT control zcs_event{
+    Evtid = evtid;
+    Ename = ename;
+    Stdat = stdat;
+    Endat = endat;
+    Estat = estat;
+    Ernam = ernam;
+    Erdat = erdat;
+    Erzet = erzet;
+    Aenam = aenam;
+    Aedat = aedat;
+    Aezet = aezet;
+  }
+}
+
+define behavior for ZPAW_IV_EXPN alias Expense
+
+draft table zems_d_expense
+late numbering
+lock dependent by Event
+authorization dependent by Event
+//etag master <field_name>
+{
+//  create;
+  update;
+  delete;
+  field ( readonly ) Evtid, Expid;
+  association Event {with draft; }
+
+  mapping for ZPAW_EXPN {
+    Evtid = evtid;
+    Expid = expid;
+    Itmnm = itmnm;
+    Escst = escst;
+    Ref = ref;
+  }
+}
+
+define behavior for ZPAW_IV_TASK alias Task
+
+draft table zems_d_task
+late numbering
+lock dependent by Event
+authorization dependent by Event
+//etag master <field_name>
+{
+//  create;
+  update;
+  delete;
+  field ( readonly ) Evtid, Tmsid, Tskid;
+  association Event {with draft; }
+
+  mapping for zpaw_task {
+    Evtid = evtid;
+    Tmsid = tmsid;
+    Tskid = tskid;
+    Tsknm = tsknm;
+    Status = status;
+  }
+}
+
+define behavior for ZPAW_IV_TEAMS alias Teams
+
+draft table zems_d_teams
+late numbering
+lock dependent by Event
+authorization dependent by Event
+//etag master <field_name>
+{
+//  create;
+  update;
+  delete;
+  field ( readonly ) Evtid, Tmsid, Estme;
+  association Event {with draft; }
+
+  determination setEstmateTime on modify { field Stdat, Endat; }
+  action updateTaskStatus parameter ZPAW_ABS_TASK_ENTITY result [1] $self;
+
+//  mapping for ZPAW_IV_TEAMS corresponding except {
+//
+//    Evtid = Evtid;
+//    Tmsid = tmsid;
+//    Estme = estme;
+//    Progs = progs;
+//    Stdat = stdat;
+//    Endat = endat;
+//    Task = task;
+//    Expse = expse;
+//
+//  }
+
+  mapping for ZPAW_TEAMS control zcs_team {
+
+    Evtid = Evtid;
+    Tmsid = tmsid;
+    Estme = estme;
+    Progs = progs;
+    Stdat = stdat;
+    Endat = endat;
+    Task = task;
+    Expse = expse;
+
+    }
+}

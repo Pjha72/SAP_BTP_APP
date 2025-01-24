@@ -1,0 +1,24 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Consumption View For Teams'
+@Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
+define view entity ZPAW_CV_TEAMS as projection on ZPAW_IV_TEAMS
+{
+    @EndUserText.label: 'Event ID'
+    key Evtid,
+    @EndUserText.label: 'Team ID'
+    key Tmsid,
+    @EndUserText.label: 'Estimate Time(Days)'
+    Estme,
+    @EndUserText.label: 'Progress'
+    Progs,
+    @EndUserText.label: 'Start Date'
+    Stdat,
+    @EndUserText.label: 'End Date'
+    Endat,
+    @EndUserText.label: 'Task'
+    Task,
+    @EndUserText.label: 'Expense'
+    Expse,
+    Event: redirected to parent ZPAW_CV_EVENT
+}

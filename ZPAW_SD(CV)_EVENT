@@ -1,0 +1,7 @@
+@EndUserText.label: 'Service definition: Event'
+define service ZPAW_CV_EVENT {
+  expose ZPAW_CV_EVENT as Event;
+  expose ZPAW_CV_TEAMS as Teams;
+  expose ZPAW_CV_TASK  as Task;
+  expose ZPAW_CV_EXPN  as Expense;
+}

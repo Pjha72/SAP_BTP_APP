@@ -1,0 +1,39 @@
+@Metadata.layer: #PARTNER
+annotate entity ZPAW_CV_TASK
+    with 
+{
+    @UI.facet: [{
+      id: 'Identification' ,
+      purpose: #STANDARD,
+      type: #IDENTIFICATION_REFERENCE,
+      label: 'Task',
+      position: 10
+   }]
+   
+    @UI.lineItem: [{ position: 10, label: 'Event Id' }]
+    @UI.identification: [{ position: 10 }]
+    @UI.selectionField: [{ position: 10 }]
+    Evtid;
+    @UI.lineItem: [{ position: 20, label: 'Team Id' }]
+    @UI.identification: [{ position: 20 }]
+    @UI.selectionField: [{ position: 20 }]
+    Tmsid;
+    @UI.lineItem: [{ position: 30, label: 'Task Id' }]
+    @UI.identification: [{ position: 30 }]
+    @UI.selectionField: [{ position: 30 }]
+    Tskid;
+    @UI.lineItem: [{ position: 40, label: 'Task Name' }]
+    @UI.identification: [{ position: 40 }]
+    @UI.selectionField: [{ position: 40 }]
+    Tsknm;
+    @UI.lineItem: [{ position: 50, label: 'Status' }]
+    @UI.identification: [{ position: 50 }]
+    @UI.selectionField: [{ position: 50 }]
+    Status;
+    @UI.lineItem: [{ position: 60 }]
+    @UI.identification: [{ position: 60 }]
+    @UI.selectionField: [{ position: 60 }]
+    /* Associations */
+    Event;
+    
+}

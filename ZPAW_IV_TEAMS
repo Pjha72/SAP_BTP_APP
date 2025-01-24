@@ -1,0 +1,16 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Interface View For Teams'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZPAW_IV_TEAMS as select from zpaw_teams
+association to parent ZPAW_IV_EVENT as Event on $projection.Evtid = Event.Evtid
+{
+    key evtid as Evtid,
+    key tmsid as Tmsid,
+    estme as Estme,
+    progs as Progs,
+    stdat as Stdat,
+    endat as Endat,
+    task as Task,
+    expse as Expse,
+    Event
+}

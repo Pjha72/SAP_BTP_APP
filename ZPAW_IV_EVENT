@@ -1,0 +1,24 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Interface View For Event'
+@Metadata.ignorePropagatedAnnotations: true
+define root view entity ZPAW_IV_EVENT as select from zpaw_event
+composition[1..*] of ZPAW_IV_TEAMS as _teams
+composition[1..*] of ZPAW_IV_TASK as _task
+composition[1..*] of ZPAW_IV_EXPN as _expense
+{
+    key evtid as Evtid,
+    ename as Ename,
+    stdat as Stdat,
+    endat as Endat,
+    estat as Estat,
+    component_to_be_changed as ComponentToBeChanged,
+    ernam as Ernam,
+    erdat as Erdat,
+    erzet as Erzet,
+    aenam as Aenam,
+    aedat as Aedat,
+    aezet as Aezet,
+    _teams,
+    _task,
+    _expense
+}

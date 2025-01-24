@@ -1,0 +1,13 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Interface View For Task'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZPAW_IV_TASK as select from zpaw_task
+association to parent ZPAW_IV_EVENT as Event on $projection.Evtid = Event.Evtid
+{
+    key evtid as Evtid,
+    key tmsid as Tmsid,
+    key tskid as Tskid,
+    tsknm as Tsknm,
+    status as Status,
+    Event
+}

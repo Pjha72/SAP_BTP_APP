@@ -1,0 +1,31 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Consumption View For Event'
+@Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
+define root view entity ZPAW_CV_EVENT as projection on ZPAW_IV_EVENT
+{
+    @EndUserText.label: 'Event Id'
+    key Evtid,
+    @EndUserText.label: 'Event Name'
+    Ename,
+    @EndUserText.label: 'Start Date'
+    Stdat,
+    @EndUserText.label: 'End Date'
+    Endat,
+    @EndUserText.label: 'Event Status'
+    @Consumption.valueHelpDefinition: [{ entity:{name: 'ZPAW_IV_STATUS', element: 'Estat' } }]
+    Estat,
+    @EndUserText.label: 'Event Id'
+    ComponentToBeChanged,
+    Ernam,
+    Erdat,
+    @EndUserText.label: 'Last Changed'
+    Erzet,
+    Aenam,
+    Aedat,
+    @EndUserText.label: 'Local Last Changed'
+    Aezet,
+    _teams: redirected to composition child ZPAW_CV_TEAMS,
+    _task : redirected to composition child ZPAW_CV_TASK,
+    _expense: redirected to composition child ZPAW_CV_EXPN
+}

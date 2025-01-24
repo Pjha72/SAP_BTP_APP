@@ -1,0 +1,13 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Consumption View For Task'
+@Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
+define view entity ZPAW_CV_TASK as projection on ZPAW_IV_TASK
+{
+    key Evtid,
+    key Tmsid,
+    key Tskid,
+    Tsknm,
+    Status,
+    Event : redirected to parent ZPAW_CV_EVENT
+}

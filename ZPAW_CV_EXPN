@@ -1,0 +1,15 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Compostion View For Expense'
+@Metadata.ignorePropagatedAnnotations: true
+@Metadata.allowExtensions: true
+define view entity ZPAW_CV_EXPN as projection on ZPAW_IV_EXPN
+{
+    key Evtid,
+    key Expid,
+    Itmnm,
+    @Semantics.amount.currencyCode: 'Ref'
+    Escst,
+    Ref,
+    /* Associations */
+    Event : redirected to parent ZPAW_CV_EVENT
+}

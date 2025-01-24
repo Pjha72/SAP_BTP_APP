@@ -1,0 +1,20 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Interface View For Expense'
+@Metadata.ignorePropagatedAnnotations: true
+@ObjectModel.usageType:{
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MIXED
+}
+define view entity ZPAW_IV_EXPN as select from zpaw_expn
+association to parent ZPAW_IV_EVENT as Event on $projection.Evtid = Event.Evtid
+{
+    key evtid as Evtid,
+    key expid as Expid,
+    itmnm as Itmnm,
+    @Semantics.amount.currencyCode: 'Ref'
+    escst as Escst,
+    ref as Ref,
+    Event
+}

@@ -1,0 +1,433 @@
+CLASS lhc_ZPAW_IV_EVENT DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR Event RESULT result.
+
+    METHODS create FOR MODIFY
+      IMPORTING entities FOR CREATE Event.
+
+    METHODS update FOR MODIFY
+      IMPORTING entities FOR UPDATE Event.
+
+    METHODS delete FOR MODIFY
+      IMPORTING keys FOR DELETE Event.
+
+    METHODS read FOR READ
+      IMPORTING keys FOR READ Event RESULT result.
+
+    METHODS lock FOR LOCK
+      IMPORTING keys FOR LOCK Event.
+
+    METHODS rba_Expense FOR READ
+      IMPORTING keys_rba FOR READ Event\_Expense FULL result_requested RESULT result LINK association_links.
+
+    METHODS rba_Task FOR READ
+      IMPORTING keys_rba FOR READ Event\_Task FULL result_requested RESULT result LINK association_links.
+
+    METHODS rba_Teams FOR READ
+      IMPORTING keys_rba FOR READ Event\_Teams FULL result_requested RESULT result LINK association_links.
+
+    METHODS cba_Expense FOR MODIFY
+      IMPORTING entities_cba FOR CREATE Event\_Expense.
+
+    METHODS cba_Task FOR MODIFY
+      IMPORTING entities_cba FOR CREATE Event\_Task.
+
+    METHODS cba_Teams FOR MODIFY
+      IMPORTING entities_cba FOR CREATE Event\_Teams.
+
+    METHODS setStartDate FOR DETERMINE ON SAVE
+      IMPORTING keys FOR Event~setStartDate.
+
+    METHODS validate_event_fields FOR VALIDATE ON SAVE
+      IMPORTING keys FOR Event~validate_event_fields.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_EVENT IMPLEMENTATION.
+
+  METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  METHOD create.
+    zcl_events_api_class=>get_instance(  )->create_event(
+    EXPORTING
+        entities = entities
+    CHANGING
+        mapped = mapped
+        failed = failed
+        reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD update.
+    zcl_events_api_class=>get_instance(  )->update_event(
+    EXPORTING
+        entities = entities
+    CHANGING
+        mapped = mapped
+        failed = failed
+        reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD delete.
+    zcl_events_api_class=>get_instance(  )->delete_event(
+    EXPORTING
+      keys = keys
+    CHANGING
+      mapped = mapped
+      failed = failed
+      reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD read.
+    zcl_events_api_class=>get_instance(  )->read_event(
+    EXPORTING
+      keys = keys
+    CHANGING
+      result = result
+      failed = failed
+      reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD lock.
+  ENDMETHOD.
+
+  METHOD rba_Expense.
+  ENDMETHOD.
+
+  METHOD rba_Task.
+  ENDMETHOD.
+
+  METHOD rba_Teams.
+    zcl_events_api_class=>get_instance(  )->rba_teams(
+    EXPORTING
+      keys_rba = keys_rba
+      result_requested = result_requested
+    CHANGING
+      result = result
+      association_links = association_links
+      failed = failed
+      reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD cba_Expense.
+  ENDMETHOD.
+
+  METHOD cba_Task.
+  ENDMETHOD.
+
+  METHOD cba_Teams.
+    zcl_events_api_class=>get_instance(  )->cba_teams(
+    EXPORTING
+        entities_cba = entities_cba
+    CHANGING
+        mapped = mapped
+        failed = failed
+        reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD setStartDate.
+     READ ENTITIES OF zpaw_iv_event
+     IN LOCAL MODE
+     ENTITY Event
+     FIELDS ( Ename ) WITH CORRESPONDING #( keys )
+     RESULT DATA(lt_start_date).
+
+     MODIFY ENTITIES OF zpaw_iv_event IN LOCAL MODE
+     ENTITY Event
+     UPDATE SET FIELDS WITH VALUE #( for ls_stdat IN lt_start_date (
+                                       %key = ls_stdat-%key
+                                       %is_draft = ls_stdat-%is_draft
+                                       Stdat = sy-datum
+                                       %control = VALUE #( Stdat = if_abap_behv=>mk-on )
+                                    )
+     ) REPORTED DATA(modifyStartDate).
+
+     reported = CORRESPONDING #( DEEP modifyStartDate ).
+  ENDMETHOD.
+
+  METHOD validate_event_fields.
+    " First Read entity
+    READ ENTITIES OF zpaw_iv_event
+    IN LOCAL MODE
+    ENTITY Event
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_event_data)
+    REPORTED DATA(lt_reported_data)
+    FAILED DATA(lt_failed_data).
+
+    IF NOT lt_event_data[] IS INITIAL.
+
+        READ TABLE lt_event_data ASSIGNING FIELD-SYMBOL(<lfs_event_data>) INDEX 1.
+
+        IF <lfs_event_data> IS ASSIGNED OR
+            <lfs_event_data>-Ename IS INITIAL OR
+            <lfs_event_data>-Stdat IS INITIAL OR
+            <lfs_event_data>-Endat IS INITIAL OR
+            <lfs_event_data>-Estat IS INITIAL.
+
+            failed-event = VALUE #( (
+                %tky = <lfs_event_data>-%tky
+            ) ).
+
+            IF <lfs_event_data>-Ename IS INITIAL.
+                reported-event = VALUE #( BASE reported-event (
+                    %tky = <lfs_event_data>-%tky
+                    %state_area = 'VALIDATE_ENAME'
+                    %element-ename = if_abap_behv=>mk-on
+                    %msg = new_message(
+                        id = 'SY'
+                        number = '001'
+                        severity = if_abap_behv_message=>severity-error
+                        v1 = 'Event name is required!!'
+                    )
+                ) ).
+            ENDIF.
+
+*            IF <lfs_event_data>-Stdat IS INITIAL.
+*                reported-event = VALUE #( BASE reported-event (
+*                    %tky = <lfs_event_data>-%tky
+*                    %state_area = 'VALIDATE_START_DATE'
+*                    %element-ename = if_abap_behv=>mk-on
+*                    %msg = new_message(
+*                        id = 'SY'
+*                        number = '002'
+*                        severity = if_abap_behv_message=>severity-error
+*                        v1 = 'Start Date is required!!'
+*                    )
+*                ) ).
+*            ENDIF.
+
+            IF <lfs_event_data>-Endat IS INITIAL.
+                reported-event = VALUE #( BASE reported-event (
+                    %tky = <lfs_event_data>-%tky
+                    %state_area = 'VALIDATE_END_DATE'
+                    %element-ename = if_abap_behv=>mk-on
+                    %msg = new_message(
+                        id = 'SY'
+                        number = '003'
+                        severity = if_abap_behv_message=>severity-error
+                        v1 = 'End Date is required!!'
+                    )
+                ) ).
+            ENDIF.
+
+            IF <lfs_event_data>-Estat IS INITIAL.
+                reported-event = VALUE #( BASE reported-event (
+                    %tky = <lfs_event_data>-%tky
+                    %state_area = 'VALIDATE_STATUS'
+                    %element-ename = if_abap_behv=>mk-on
+                    %msg = new_message(
+                        id = 'SY'
+                        number = '004'
+                        severity = if_abap_behv_message=>severity-error
+                        v1 = 'Status is required!!'
+                    )
+                ) ).
+            ENDIF.
+
+        ENDIF.
+
+    ENDIF.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_EXPN DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS update FOR MODIFY
+      IMPORTING entities FOR UPDATE Expense.
+
+    METHODS delete FOR MODIFY
+      IMPORTING keys FOR DELETE Expense.
+
+    METHODS read FOR READ
+      IMPORTING keys FOR READ Expense RESULT result.
+
+    METHODS rba_Event FOR READ
+      IMPORTING keys_rba FOR READ Expense\Event FULL result_requested RESULT result LINK association_links.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_EXPN IMPLEMENTATION.
+
+  METHOD update.
+  ENDMETHOD.
+
+  METHOD delete.
+  ENDMETHOD.
+
+  METHOD read.
+  ENDMETHOD.
+
+  METHOD rba_Event.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_TASK DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS update FOR MODIFY
+      IMPORTING entities FOR UPDATE Task.
+
+    METHODS delete FOR MODIFY
+      IMPORTING keys FOR DELETE Task.
+
+    METHODS read FOR READ
+      IMPORTING keys FOR READ Task RESULT result.
+
+    METHODS rba_Event FOR READ
+      IMPORTING keys_rba FOR READ Task\Event FULL result_requested RESULT result LINK association_links.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_TASK IMPLEMENTATION.
+
+  METHOD update.
+  ENDMETHOD.
+
+  METHOD delete.
+  ENDMETHOD.
+
+  METHOD read.
+  ENDMETHOD.
+
+  METHOD rba_Event.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_TEAMS DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS update FOR MODIFY
+      IMPORTING entities FOR UPDATE Teams.
+
+    METHODS delete FOR MODIFY
+      IMPORTING keys FOR DELETE Teams.
+
+    METHODS read FOR READ
+      IMPORTING keys FOR READ Teams RESULT result.
+
+    METHODS rba_Event FOR READ
+      IMPORTING keys_rba FOR READ Teams\Event FULL result_requested RESULT result LINK association_links.
+
+    METHODS setEstmateTime FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR Teams~setEstmateTime.
+    METHODS updateTaskStatus FOR MODIFY
+      IMPORTING keys FOR ACTION Teams~updateTaskStatus RESULT result.
+
+ENDCLASS.
+
+CLASS lhc_ZPAW_IV_TEAMS IMPLEMENTATION.
+
+  METHOD update.
+    zcl_events_api_class=>get_instance(  )->update_team(
+    EXPORTING
+        entities = entities
+    CHANGING
+        mapped = mapped
+        failed = failed
+        reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD delete.
+    zcl_events_api_class=>get_instance(  )->delete_team(
+    EXPORTING
+      keys = keys
+    CHANGING
+      mapped = mapped
+      failed = failed
+      reported = reported
+    ).
+  ENDMETHOD.
+
+  METHOD read.
+  ENDMETHOD.
+
+  METHOD rba_Event.
+  ENDMETHOD.
+
+  METHOD setEstmateTime.
+
+    READ ENTITIES OF zpaw_iv_event IN LOCAL MODE
+    ENTITY Teams
+    FIELDS ( Stdat Endat )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_estimate_time).
+
+    MODIFY ENTITIES OF zpaw_iv_event IN LOCAL MODE
+    ENTITY Teams
+    UPDATE SET FIELDS WITH VALUE #( for ls_teams IN lt_estimate_time (
+                                    %key = ls_teams-%key
+                                    %is_draft = ls_teams-%is_draft
+                                    Estme = ls_teams-Endat - ls_teams-Stdat
+                                    %control = VALUE #( Estme  = if_abap_behv=>mk-on )
+                                    ) ) REPORTED DATA(modifyEstimate).
+     reported = CORRESPONDING #( DEEP modifyEstimate ).
+
+  ENDMETHOD.
+
+  METHOD updateTaskStatus.
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lsc_ZPAW_IV_EVENT DEFINITION INHERITING FROM cl_abap_behavior_saver.
+  PROTECTED SECTION.
+
+    METHODS finalize REDEFINITION.
+
+    METHODS check_before_save REDEFINITION.
+
+    METHODS adjust_numbers REDEFINITION.
+
+    METHODS save REDEFINITION.
+
+    METHODS cleanup REDEFINITION.
+
+    METHODS cleanup_finalize REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_ZPAW_IV_EVENT IMPLEMENTATION.
+
+  METHOD finalize.
+  ENDMETHOD.
+
+  METHOD check_before_save.
+  ENDMETHOD.
+
+  METHOD adjust_numbers.
+    zcl_events_api_class=>get_instance(  )->adjust_numbers(
+        CHANGING
+            mapped = mapped
+            reported = reported
+      ).
+  ENDMETHOD.
+
+  METHOD save.
+    zcl_events_api_class=>get_instance(  )->save_data(
+        CHANGING
+            reported = reported
+      ).
+  ENDMETHOD.
+
+  METHOD cleanup.
+  ENDMETHOD.
+
+  METHOD cleanup_finalize.
+  ENDMETHOD.
+
+ENDCLASS.

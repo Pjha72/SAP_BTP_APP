@@ -1,0 +1,464 @@
+CLASS zcl_events_api_class DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    DATA: tty_event TYPE STANDARD TABLE OF zpaw_event WITH EMPTY KEY.
+
+    DATA: gt_event TYPE STANDARD TABLE OF zpaw_event,
+          gt_team TYPE STANDARD TABLE OF ZPAW_IV_TEAMS,
+          gt_teams TYPE STANDARD TABLE OF ZPAW_TEAMS.
+
+    DATA: gv_evtid TYPE zpaw_evtid.
+
+    TYPES:
+      tt_create_event   TYPE TABLE FOR CREATE zpaw_iv_event,
+      tt_mapped_event   TYPE RESPONSE FOR MAPPED EARLY zpaw_iv_event,
+      tt_failed_event   TYPE RESPONSE FOR FAILED EARLY zpaw_iv_event,
+      tt_reported_event TYPE RESPONSE FOR REPORTED EARLY zpaw_iv_event,
+      tt_mapped_late    TYPE RESPONSE FOR MAPPED LATE zpaw_iv_event,
+      tt_reported_late  TYPE RESPONSE FOR REPORTED LATE zpaw_iv_event,
+      tt_delete_event   TYPE TABLE FOR DELETE zpaw_iv_event\\event,
+      tt_update_event   TYPE TABLE FOR UPDATE zpaw_iv_event\\event,
+      tt_read_event     TYPE TABLE FOR READ IMPORT zpaw_iv_event\\event,
+      tt_read_result    TYPE TABLE FOR READ RESULT zpaw_iv_event\\event,
+      tt_create_team    TYPE table for create zpaw_iv_event\\event\_teams,
+      tt_read_team      type table for read import zpaw_iv_event\\event\_teams,
+      tt_read_results   type table for read result zpaw_iv_event\\event\_teams,
+      tt_read_link      type table for read link zpaw_iv_event\\event\_teams,
+      tt_update_team    type table for update zpaw_iv_event\\teams,
+      tt_delete_team    type table for delete zpaw_iv_event\\teams.
+
+
+    CLASS-METHODS: get_instance RETURNING VALUE(ro_instance) TYPE REF TO zcl_events_api_class.
+
+    METHODS:
+      create_event
+        IMPORTING entities TYPE tt_create_event "table for create zpaw_iv_event  [ derived type... ]
+        CHANGING  mapped   TYPE tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                  failed   TYPE tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                  reported TYPE tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+      adjust_numbers
+        CHANGING mapped   TYPE tt_mapped_late "response for mapped late zpaw_iv_event  [ derived type... ]
+                 reported TYPE tt_reported_late, "response for reported late zpaw_iv_event  [ derived type... ]
+      save_data
+        CHANGING reported TYPE tt_reported_late, "response for reported late zpaw_iv_event  [ derived type... ]
+
+      delete_event
+        IMPORTING keys     TYPE tt_delete_event "table for delete zpaw_iv_event\\event  [ derived type... ]
+        CHANGING  mapped   TYPE tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                  failed   TYPE tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                  reported TYPE tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+      update_event
+        IMPORTING entities TYPE tt_update_event "table for update zpaw_iv_event\\event  [ derived type... ]
+        CHANGING  mapped   TYPE tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                  failed   TYPE tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                  reported TYPE tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+      read_event
+        IMPORTING keys     TYPE tt_read_event "table for read import zpaw_iv_event\\event  [ derived type... ]
+        CHANGING  result   TYPE tt_read_result "table for read result zpaw_iv_event\\event  [ derived type... ]
+                  failed   TYPE tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                  reported TYPE tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+*      create_teams
+*         importing entities  type tt_create_team "table for create zpaw_iv_event\\teams  [ derived type... ]
+*         changing  mapped    type tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+*                   failed    type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+*                   reported  type tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+*      read_teams
+*         importing keys      type tt_read_team "table for read import zpaw_iv_event\\teams  [ derived type... ]
+*         changing  result    type tt_read_results "table for read result zpaw_iv_event\\teams  [ derived type... ]
+*                   failed    type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+*                   reported  type tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+      cba_teams
+         importing entities_cba  type tt_create_team "table for create zpaw_iv_event\\event\_teams  [ derived type... ]
+         changing  mapped        type tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                   failed        type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                   reported      type tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+      rba_teams
+         importing keys_rba          type tt_read_team "table for read import zpaw_iv_event\\event\_teams  [ derived type... ]
+                   result_requested  type char1
+         changing  result            type tt_read_results "table for read result zpaw_iv_event\\event\_teams  [ derived type... ]
+                   association_links type tt_read_link "table for read link zpaw_iv_event\\event\_teams  [ derived type... ]
+                   failed            type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                   reported          type tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+      update_team
+         importing entities  type tt_update_team "table for update zpaw_iv_event\\teams  [ derived type... ]
+         changing  mapped    type tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                   failed    type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                   reported  type tt_reported_event, "response for reported early zpaw_iv_event  [ derived type... ]
+
+     delete_team
+         importing keys      type tt_delete_team "table for delete zpaw_iv_event\\teams  [ derived type... ]
+         changing  mapped    type tt_mapped_event "response for mapped early zpaw_iv_event  [ derived type... ]
+                   failed    type tt_failed_event "response for failed early zpaw_iv_event  [ derived type... ]
+                   reported  type tt_reported_event "response for reported early zpaw_iv_event  [ derived type... ]
+        .
+    METHODS:
+      get_event_id RETURNING VALUE(rv_evtid) TYPE zpaw_evtid,
+      get_teams_id RETURNING VALUE(rv_tmsid) TYPE zpaw_tmsid.
+
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    CLASS-DATA: mo_instance TYPE REF TO zcl_events_api_class,
+                gs_mapped   TYPE tt_mapped_event,
+                gr_event_d  TYPE RANGE OF zpaw_event-evtid,
+                gr_team_d   TYPE RANGE OF zpaw_teams-tmsid.
+
+    DATA: gt_event_create TYPE STANDARD TABLE OF zpaw_event.
+ENDCLASS.
+
+
+
+CLASS zcl_events_api_class IMPLEMENTATION.
+
+  METHOD get_event_id.
+    SELECT MAX( evtid ) FROM zpaw_event INTO @DATA(lv_current_evtid).
+
+    lv_current_evtid  = lv_current_evtid + 1.
+
+  ENDMETHOD.
+
+
+
+  METHOD get_instance.
+    mo_instance = ro_instance =  COND #( WHEN mo_instance IS BOUND
+                                         THEN mo_instance
+                                         ELSE NEW #(  ) ).
+  ENDMETHOD.
+
+  METHOD create_event.
+    gt_event = CORRESPONDING #( entities MAPPING FROM ENTITY ).
+
+    LOOP AT entities ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+      IF gt_event[] IS NOT INITIAL.
+        gt_event[ 1 ]-evtid = get_event_id(  ).
+        gt_event[ 1 ]-stdat = sy-datum.
+        gt_event[ 1 ]-estat = 'PENDING'.
+
+        mapped = VALUE #(
+            event = VALUE #(
+                FOR ls_entites IN entities (
+                    %cid = ls_entites-%cid
+                    %key = ls_entites-%key
+                    %is_draft = ls_entites-%is_draft
+                 )
+            )
+         ).
+      ENDIF.
+
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD adjust_numbers.
+
+    DATA: lv_current_evtid TYPE zpaw_event-evtid, " Assuming evtid is a field in zpaw_event
+          gv_evtid_counter TYPE zpaw_event-evtid,
+          lv_current_tmsid TYPE zpaw_teams-tmsid, " Assuming evtid is a field in zpaw_event
+          gv_tmsid_counter TYPE zpaw_teams-tmsid. " Global counter
+
+
+    " Fetch the maximum evtid from the database only once
+    IF gv_evtid_counter IS INITIAL.
+      SELECT MAX( evtid )
+        FROM zpaw_event
+        INTO @gv_evtid_counter.
+    ENDIF.
+
+    " Increment the counter to generate a new evtid
+    gv_evtid_counter = gv_evtid_counter + 1.
+    lv_current_evtid = gv_evtid_counter.
+
+    " Assign the new evtid to the first entry in gt_event
+    READ TABLE gt_event ASSIGNING FIELD-SYMBOL(<lfs_event>) INDEX 1.
+    IF <lfs_event> IS ASSIGNED AND <lfs_event>-evtid IS INITIAL.
+      <lfs_event>-evtid = lv_current_evtid.
+      UNASSIGN <lfs_event>.
+    ENDIF.
+
+
+ " Fetch the maximum tmsid from the database only once
+    IF gv_tmsid_counter IS INITIAL.
+      SELECT MAX( tmsid )
+        FROM zpaw_teams
+        INTO @gv_tmsid_counter.
+    ENDIF.
+
+    " Assign the new evtid to the first entry in gt_event
+    READ TABLE gt_teams ASSIGNING FIELD-SYMBOL(<lfs_team>) INDEX 1.
+    IF <lfs_team> IS ASSIGNED and <lfs_team>-tmsid IS INITIAL.
+        gv_tmsid_counter = gv_tmsid_counter + 1.
+        lv_current_tmsid = gv_tmsid_counter.
+      <lfs_team>-tmsid = lv_current_tmsid.
+      UNASSIGN <lfs_team>.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD save_data.
+    IF gt_event[] IS NOT INITIAL.
+      MODIFY zpaw_event FROM TABLE @gt_event.
+    ENDIF.
+
+    IF gt_teams[] IS NOT INITIAL.
+        MODIFY zpaw_teams FROM TABLE @gt_teams.
+    ENDIF.
+
+    IF NOT gr_event_d IS INITIAL.
+      DELETE FROM zpaw_event WHERE evtid IN @gr_event_d.
+    ENDIF.
+
+    IF NOT gr_team_d  IS INITIAL.
+        DELETE FROM zpaw_teams WHERE tmsid IN @gr_team_d.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD delete_event.
+    DATA: lt_event TYPE STANDARD TABLE OF zpaw_event.
+
+    lt_event = CORRESPONDING #( keys MAPPING FROM ENTITY ).
+
+    gr_event_d = VALUE #(
+      FOR ls_event IN lt_event
+      sign = 'I'
+      option = 'EQ'
+      ( low = ls_event-evtid )
+     ).
+  ENDMETHOD.
+
+  METHOD update_event.
+    DATA: lt_update_event   TYPE TABLE OF zpaw_event,
+          lt_update_event_x TYPE TABLE OF zcs_event.
+
+    lt_update_event = CORRESPONDING #( entities ).
+    lt_update_event_x = CORRESPONDING #( entities MAPPING FROM ENTITY USING CONTROL ).
+
+    IF NOT lt_update_event IS INITIAL.
+
+*      Get Old Data
+      SELECT * FROM zpaw_event
+      FOR ALL ENTRIES IN @lt_update_event
+      WHERE evtid = @lt_update_event-evtid
+      INTO TABLE @DATA(lt_update_old_event).
+
+    ENDIF.
+
+    gt_event = VALUE #(
+        FOR x = 1 WHILE x <= lines( lt_update_event )
+        LET
+            ls_control_flag = VALUE #( lt_update_event_x[ x ] OPTIONAL )
+            ls_event_new = VALUE #( lt_update_event[ x ] OPTIONAL )
+            ls_event_old = VALUE #( lt_update_old_event[ evtid = ls_event_new-evtid ] OPTIONAL )
+        IN (
+            evtid = ls_event_new-evtid
+            ename = COND #( WHEN ls_control_flag-ename IS NOT INITIAL
+                            THEN ls_event_new-ename
+                            ELSE ls_event_old-ename )
+            stdat = COND #( WHEN ls_control_flag-stdat IS NOT INITIAL
+                            THEN ls_event_new-stdat
+                            ELSE ls_event_old-stdat )
+            endat = COND #( WHEN ls_control_flag-endat IS NOT INITIAL
+                            THEN ls_event_new-endat
+                            ELSE ls_event_old-endat )
+            estat = COND #( WHEN ls_control_flag-estat IS NOT INITIAL
+                            THEN ls_event_new-estat
+                            ELSE ls_event_old-estat )
+            ernam = COND #( WHEN ls_control_flag-ernam IS NOT INITIAL
+                            THEN ls_event_new-ernam
+                            ELSE ls_event_old-ernam )
+            erdat = COND #( WHEN ls_control_flag-erdat IS NOT INITIAL
+                            THEN ls_event_new-erdat
+                            ELSE ls_event_old-erdat )
+            erzet = COND #( WHEN ls_control_flag-erzet IS NOT INITIAL
+                            THEN ls_event_new-erzet
+                            ELSE ls_event_old-erzet )
+            aenam = COND #( WHEN ls_control_flag-aenam IS NOT INITIAL
+                            THEN ls_event_new-aenam
+                            ELSE ls_event_old-aenam )
+            aedat = COND #( WHEN ls_control_flag-aedat IS NOT INITIAL
+                            THEN ls_event_new-aedat
+                            ELSE ls_event_old-aedat )
+            aezet = COND #( WHEN ls_control_flag-aezet IS NOT INITIAL
+                            THEN ls_event_new-aezet
+                            ELSE ls_event_old-aezet )
+        )
+
+     ).
+  ENDMETHOD.
+
+  METHOD read_event.
+* get the data from database table and store into table
+    SELECT * FROM zpaw_event
+    FOR ALL ENTRIES IN @keys
+    WHERE evtid = @keys-Evtid
+    INTO TABLE @DATA(lt_event_data).
+
+
+* Store into the result (changing parameter )
+    result = CORRESPONDING #( lt_event_data MAPPING TO ENTITY ).
+
+
+  ENDMETHOD.
+
+  METHOD get_teams_id.
+    SELECT MAX( tmsid ) FROM zpaw_teams INTO @DATA(lt_teams_tmsid).
+
+    lt_teams_tmsid = lt_teams_tmsid + 1.
+
+  ENDMETHOD.
+
+  METHOD cba_teams.
+
+*    gt_teams = CORRESPONDING #( entities_cba  MAPPING FROM ENTITY ).
+
+*    gt_teams = VALUE #(
+*    FOR ls_entities IN entities_cba
+*        FOR ls_teams IN ls_entities-%target
+*            LET lwa_teams = CORRESPONDING zpaw_teams( ls_teams MAPPING FROM ENTITY )
+*            IN (
+*                lwa_teams
+*            )
+*).
+
+    LOOP AT entities_cba ASSIGNING FIELD-SYMBOL(<ls_entities>).
+      " Store the Evtid from entities_cba in the global variable
+      gv_evtid = <ls_entities>-evtid.
+
+      LOOP AT <ls_entities>-%target ASSIGNING FIELD-SYMBOL(<ls_teams>).
+        " Map the teams data
+        APPEND VALUE zpaw_teams(
+          tmsid = <ls_teams>-tmsid
+          evtid = gv_evtid
+          estme = <ls_teams>-Estme
+          stdat = <ls_teams>-Stdat
+          endat = <ls_teams>-Endat
+          task = <ls_teams>-Task
+          expse = <ls_teams>-Expse
+        ) TO gt_teams.
+      ENDLOOP.
+    ENDLOOP.
+
+
+
+    mapped = VALUE #(
+        teams = VALUE #(
+            FOR i = 1 WHILE i <= lines( entities_cba )
+            LET
+                lt_team = VALUE #( entities_cba[ i ]-%target OPTIONAL )
+            IN
+                FOR j = 1 WHILE j <= lines( lt_team )
+                LET
+                    ls_team = VALUE #( lt_team[ j ] OPTIONAL )
+                IN (
+                    %cid = ls_team-%cid
+                    %pid = ls_team-%pidparent
+                    %key = ls_team-%key
+                    %is_draft = ls_team-%is_draft
+                    Evtid = gv_evtid
+                    Tmsid = ls_team-Tmsid
+                )
+        )
+    ).
+
+*    gt_teams = CORRESPONDING #( gt_team ).
+*    LOOP AT entities_cba ASSIGNING FIELD-SYMBOL(<lfs_entities>).
+*      DATA(lt_teams_data) = <lfs_entities>-%target
+*      IF gt_teams[] IS NOT INITIAL.
+*        gt_teams[ 1 ]-tmsid = get_teams_id(  ).
+*
+*        mapped = VALUE #(
+*            teams = VALUE #(
+*                FOR ls_entites IN entities_cba (
+*                    %cid = ls_entites-%cid_ref
+*                    %key = ls_entites-%key
+*                 )
+*            )
+*         ).
+*      ENDIF.
+*
+*    ENDLOOP.
+  ENDMETHOD.
+
+
+
+  METHOD rba_teams.
+    SELECT * FROM ZPAW_TEAMS
+    FOR ALL ENTRIES IN @keys_rba
+    WHERE evtid = @keys_rba-Evtid
+    INTO TABLE @DATA(lt_team_data).
+
+    result = CORRESPONDING #( lt_team_data ).
+
+  ENDMETHOD.
+
+  METHOD update_team.
+    DATA: lt_update_team   TYPE STANDARD TABLE OF zpaw_teams,
+          lt_update_team_x TYPE STANDARD TABLE OF zcs_team.
+
+    lt_update_team = CORRESPONDING #( entities MAPPING FROM ENTITY ).
+    lt_update_team_x = CORRESPONDING #( entities MAPPING FROM ENTITY USING CONTROL ).
+
+    IF NOT lt_update_team IS INITIAL.
+
+*      Get Old Data
+      SELECT * FROM zpaw_teams
+      FOR ALL ENTRIES IN @lt_update_team
+      WHERE evtid = @lt_update_team-evtid
+      INTO TABLE @DATA(lt_update_old_team).
+
+    ENDIF.
+
+    gt_teams = VALUE #(
+        FOR x = 1 WHILE x <= lines( lt_update_team )
+        LET
+            ls_control_flag = VALUE #( lt_update_team_x[ x ] OPTIONAL )
+            ls_team_new = VALUE #( lt_update_team[ x ] OPTIONAL )
+            ls_team_old = VALUE #( lt_update_old_team[ evtid = ls_team_new-evtid ] OPTIONAL )
+        IN (
+            evtid = ls_team_new-evtid
+            tmsid = ls_team_new-tmsid
+            estme = COND #( WHEN ls_control_flag-estme IS NOT INITIAL
+                            THEN ls_team_new-estme
+                            ELSE ls_team_old-estme )
+            progs = COND #( WHEN ls_control_flag-progs IS NOT INITIAL
+                            THEN ls_team_new-progs
+                            ELSE ls_team_old-progs )
+            stdat = COND #( WHEN ls_control_flag-stdat IS NOT INITIAL
+                            THEN ls_team_new-stdat
+                            ELSE ls_team_old-stdat )
+            endat = COND #( WHEN ls_control_flag-endat IS NOT INITIAL
+                            THEN ls_team_new-endat
+                            ELSE ls_team_old-endat )
+            task = COND #( WHEN ls_control_flag-task IS NOT INITIAL
+                            THEN ls_team_new-task
+                            ELSE ls_team_old-task )
+            expse = COND #( WHEN ls_control_flag-expse IS NOT INITIAL
+                            THEN ls_team_new-expse
+                            ELSE ls_team_old-expse )
+        )
+
+     ).
+  ENDMETHOD.
+
+  METHOD delete_team.
+     DATA: lt_team TYPE STANDARD TABLE OF zpaw_teams.
+
+    lt_team = CORRESPONDING #( keys MAPPING FROM ENTITY ).
+
+    gr_team_d = VALUE #(
+      FOR ls_event IN lt_team
+      sign = 'I'
+      option = 'EQ'
+      ( low = ls_event-tmsid )
+     ).
+  ENDMETHOD.
+
+ENDCLASS.

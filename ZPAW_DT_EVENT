@@ -1,0 +1,24 @@
+@EndUserText.label : 'Draft table for entity ZPAW_IV_EVENT'
+@AbapCatalog.enhancement.category : #EXTENSIBLE_ANY
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zems_d_event {
+
+  key mandt            : mandt not null;
+  key evtid            : zpaw_evtid not null;
+  key draftuuid        : sdraft_uuid not null;
+  ename                : zpaw_ename;
+  stdat                : zpaw_stdat;
+  endat                : zpaw_endat;
+  estat                : abap.char(20);
+  componenttobechanged : abap.string(0);
+  ernam                : ernam;
+  erdat                : erdat;
+  erzet                : abap.tims;
+  aenam                : aenam;
+  aedat                : aedat;
+  aezet                : abap.tims;
+  "%admin"             : include sych_bdl_draft_admin_inc;
+
+}

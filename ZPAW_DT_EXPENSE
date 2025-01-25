@@ -1,0 +1,19 @@
+@EndUserText.label : 'Draft table for entity ZPAW_IV_EXPN'
+@AbapCatalog.enhancement.category : #EXTENSIBLE_ANY
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zems_d_expense {
+
+  key mandt       : mandt not null;
+  key evtid       : zpaw_evtid not null;
+  key expid       : zpaw_expid not null;
+  key draftuuid   : sdraft_uuid not null;
+  parentdraftuuid : sdraft_uuid;
+  itmnm           : zpaw_itmnm;
+  @Semantics.amount.currencyCode : 'zems_d_expense.ref'
+  escst           : zpaw_escst;
+  ref             : abap.cuky;
+  "%admin"        : include sych_bdl_draft_admin_inc;
+
+}

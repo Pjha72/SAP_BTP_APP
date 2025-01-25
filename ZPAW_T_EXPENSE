@@ -1,0 +1,16 @@
+@EndUserText.label : 'Expense Information'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zpaw_expn {
+
+  key client : abap.clnt not null;
+  key evtid  : zpaw_evtid not null;
+  key expid  : zpaw_expid not null;
+  itmnm      : zpaw_itmnm;
+  @Semantics.amount.currencyCode : 'zpaw_reftb.ref'
+  escst      : zpaw_escst;
+  ref        : abap.cuky;
+
+}

@@ -1,0 +1,16 @@
+@EndUserText.label : 'Event Information'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zpaw_event {
+
+  key client : abap.clnt not null;
+  key evtid  : zpaw_evtid not null;
+  ename      : zpaw_ename;
+  stdat      : zpaw_stdat;
+  endat      : zpaw_endat;
+  estat      : abap.char(20);
+  include zpaw_admin;
+
+}

@@ -1,0 +1,21 @@
+@EndUserText.label : 'Draft table for entity ZPAW_IV_TEAMS'
+@AbapCatalog.enhancement.category : #EXTENSIBLE_ANY
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zems_d_teams {
+
+  key mandt       : mandt not null;
+  key evtid       : zpaw_evtid not null;
+  key tmsid       : zpaw_tmsid not null;
+  key draftuuid   : sdraft_uuid not null;
+  parentdraftuuid : sdraft_uuid;
+  estme           : zpaw_estme;
+  progs           : zpaw_proge;
+  stdat           : zpaw_stdat;
+  endat           : zpaw_endat;
+  task            : abap.char(20);
+  expse           : abap.char(20);
+  "%admin"        : include sych_bdl_draft_admin_inc;
+
+}

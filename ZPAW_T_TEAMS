@@ -1,0 +1,18 @@
+@EndUserText.label : 'Teams Information'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zpaw_teams {
+
+  key client : abap.clnt not null;
+  key evtid  : zpaw_evtid not null;
+  key tmsid  : zpaw_tmsid not null;
+  estme      : zpaw_estme;
+  progs      : zpaw_proge;
+  stdat      : zpaw_stdat;
+  endat      : zpaw_endat;
+  task       : abap.char(20);
+  expse      : abap.char(20);
+
+}

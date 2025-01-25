@@ -1,0 +1,18 @@
+@EndUserText.label : 'Draft table for entity ZPAW_IV_TASK'
+@AbapCatalog.enhancement.category : #EXTENSIBLE_ANY
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zems_d_task {
+
+  key mandt       : mandt not null;
+  key evtid       : zpaw_evtid not null;
+  key tmsid       : zpaw_tmsid not null;
+  key tskid       : zpaw_tskid not null;
+  key draftuuid   : sdraft_uuid not null;
+  parentdraftuuid : sdraft_uuid;
+  tsknm           : abap.char(50);
+  status          : zpaw_estat;
+  "%admin"        : include sych_bdl_draft_admin_inc;
+
+}

@@ -1,0 +1,102 @@
+CLASS zcl_number_range DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_number_range IMPLEMENTATION.
+  METHOD if_oo_adt_classrun~main.
+     DATA : lv_norange  TYPE REF TO cl_numberrange_objects,
+           lv_interval TYPE REF TO cl_numberrange_intervals,
+           lv_runtime  TYPE REF TO cl_numberrange_runtime.
+    DATA : nr_attribute  TYPE cl_numberrange_objects=>nr_attribute,
+           obj_text      TYPE cl_numberrange_objects=>nr_obj_text,
+           lv_returncode TYPE cl_numberrange_objects=>nr_returncode,
+           lv_errors     TYPE cl_numberrange_objects=>nr_errors,
+           nr_interval   TYPE cl_numberrange_intervals=>nr_interval,
+           st_interval   LIKE LINE OF nr_interval,
+           nr_number     TYPE cl_numberrange_runtime=>nr_number,
+           nr_interval1  TYPE cl_numberrange_runtime=>nr_interval,
+           error         TYPE cl_numberrange_intervals=>nr_error,
+           error_inf     TYPE cl_numberrange_intervals=>nr_error_inf,
+           error_iv      TYPE cl_numberrange_intervals=>nr_error_iv,
+           warning       TYPE cl_numberrange_intervals=>nr_warning.
+
+    nr_attribute-buffer = 'X'.
+    nr_attribute-object = 'ZPAW_EVTID'.
+    nr_attribute-domlen = 'ZPAW_EVTID'.
+    nr_attribute-percentage = 10.
+    nr_attribute-devclass = 'zcl_events_api_class'.
+    obj_text-langu = 'E'.
+    obj_text-object = 'ZPAW_EVTID'.
+    obj_text-txt = 'Testing Num Range'.
+    obj_text-txtshort = 'Test'.
+
+    st_interval-subobject = ''.
+    st_interval-nrrangenr = '01'.
+* st_INTERVAL-toyear
+    st_interval-fromnumber  = '20000000000000000000'.
+    st_interval-tonumber    = '99999999999999999999'.
+    st_interval-procind     = 'I'.
+    APPEND st_interval TO nr_interval.
+
+*   TRY.
+*      cl_numberrange_objects=>create(
+*      EXPORTING
+*          attributes                = nr_attribute
+*          obj_text                  = obj_text
+*      IMPORTING
+*          errors = lv_errors
+*          returncode = lv_returncode )
+*         .
+*    CATCH cx_number_ranges INTO DATA(lx_number_range).
+*  ENDTRY.
+
+
+    TRY.
+
+        CALL METHOD cl_numberrange_intervals=>create
+          EXPORTING
+            interval  = nr_interval
+            object    = 'ZPAW_EVTID'
+*           subobject = ''
+          IMPORTING
+            error     = error
+            error_inf = error_inf
+            error_iv  = error_iv.
+      CATCH  cx_nr_object_not_found INTO DATA(lx_no_obj_found).
+        out->write(
+          EXPORTING
+            data = lx_no_obj_found->get_text( )
+        ).
+      CATCH cx_number_ranges INTO DATA(lx_number_ranges).
+        out->write(
+          EXPORTING
+            data = lx_number_ranges->get_text( )
+        ).
+    ENDTRY.
+
+    TRY.
+        CALL METHOD cl_numberrange_intervals=>read
+          EXPORTING
+*           nr_range_nr1 =
+*           nr_range_nr2 =
+            object   = 'ZPAW_EVTID'
+*           subobject    =
+          IMPORTING
+            interval = DATA(intervals).
+      CATCH cx_nr_object_not_found.
+      CATCH cx_nr_subobject.
+      CATCH cx_number_ranges.
+    ENDTRY.
+    out->write( intervals ).
+  ENDMETHOD.
+
+ENDCLASS.

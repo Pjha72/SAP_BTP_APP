@@ -1,0 +1,15 @@
+@EndUserText.label : 'Task Information'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zpaw_task {
+
+  key client : abap.clnt not null;
+  key evtid  : zpaw_evtid not null;
+  key tmsid  : zpaw_tmsid not null;
+  key tskid  : zpaw_tskid not null;
+  tsknm      : abap.char(50);
+  status     : zpaw_estat;
+
+}

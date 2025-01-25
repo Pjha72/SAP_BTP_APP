@@ -1,0 +1,17 @@
+@EndUserText.label : 'Control Structure For Event'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+define structure zcs_event {
+
+  key evtid : xsdboolean not null;
+  ename     : xsdboolean;
+  stdat     : xsdboolean;
+  endat     : xsdboolean;
+  estat     : xsdboolean;
+  ernam     : xsdboolean;
+  erdat     : xsdboolean;
+  erzet     : xsdboolean;
+  aenam     : xsdboolean;
+  aedat     : xsdboolean;
+  aezet     : xsdboolean;
+
+}

@@ -1,0 +1,15 @@
+@EndUserText.label : 'Control Structure For Team'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+define structure zcs_team {
+
+  key client : xsdboolean not null;
+  key evtid  : xsdboolean not null;
+  key tmsid  : xsdboolean not null;
+  estme      : xsdboolean;
+  progs      : xsdboolean;
+  stdat      : xsdboolean;
+  endat      : xsdboolean;
+  task       : xsdboolean;
+  expse      : xsdboolean;
+
+}
